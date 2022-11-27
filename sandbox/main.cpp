@@ -13,8 +13,18 @@
 // '-------------------------------------------------------------------------'
 #include <iostream>
 
-int main( void ) {
+int main( int argc, char* argv, char* env[] ) {
+
     return 0;
 }
+
+#ifdef _WIN32
+#include <windows.h>
+
+int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
+    return 0;
+}
+
+#endif // def _WIN32
 
 // vim: ts=4:sw=4:et:nowrap
