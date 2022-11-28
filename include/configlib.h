@@ -16,6 +16,7 @@
 #define __STF_CONFIGLIB_H__
 
 #include <string>
+#include <vector>
 
 namespace stf {
 
@@ -26,9 +27,11 @@ enum class eSettingLevel {
     USER        // User level can be modified by user and system configuration files - it's RW and might also be saved back to config file
 };
 
+class SettingParamBase {
+};
 
 template<typename T>
-class SettingParam {
+class SettingParam : public SettingParamBase {
 public:
     using type = T;
 
@@ -46,10 +49,42 @@ private:
     T       _val;
 };
 
-// Container for SettingParam
+// Singleton that is container for SettingParam's
 class Settings {
 public:
+    static Settings&    get( void );
 
+    // Not implemented template - want it to fail
+    template<typename T>
+    void registerSetting( SettingParam<T>& param );
+
+    template<> void registerSetting( SettingParam<bool>& param );
+    template<> void registerSetting( SettingParam<std::uint32_t>& param );
+    template<> void registerSetting( SettingParam<float>& param );
+    template<> void registerSetting( SettingParam<std::string>& param );
+
+    struct SettingsStore {
+        SettingsStore(SettingParam<bool>& val) : ptr(val) {}
+        SettingsStore(SettingParam<std::uint32_t>& val) : ptr(val) {}
+        SettingsStore(SettingParam<float>& val) : ptr(val) {}
+        SettingsStore(SettingParam<std::string>& val) : ptr(val) {}
+
+        union Item {
+            Item( SettingParam<bool>& ptr ) : spBool(&ptr) {} 
+            Item( SettingParam<std::uint32_t>& ptr ) : spUInt(&ptr) {} 
+            Item( SettingParam<float>& ptr ) : spFloat(&ptr) {} 
+            Item( SettingParam<std::string>& ptr ) : spString(&ptr) {} 
+
+            SettingParam<bool>*             spBool;
+            SettingParam<std::uint32_t>*    spUInt;
+            SettingParam<float>*            spFloat;
+            SettingParam<std::string>*      spString;
+            SettingParam<void*>*            spAll;      // Item is union so all types start at this same address, this one is just to represent all other
+                                                        // without dedicated type, but to get Param name any of this items might be used. This is just syntax suger.
+        };
+        Item        ptr;
+    };
+    std::vector<SettingsStore>  _registry;
 };
 
 }; // ns:stf
