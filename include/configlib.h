@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace stf {
 
@@ -27,26 +28,46 @@ enum class eSettingLevel {
     USER        // User level can be modified by user and system configuration files - it's RW and might also be saved back to config file
 };
 
-class SettingParamBase {
+enum class SettingType {
+    UNDEFINED,
+    BOOL,
+    INT32,
+    INT64,
+    FLOAT,
+    STRING
 };
 
-template<typename T>
-class SettingParam : public SettingParamBase {
-public:
-    using type = T;
+const std::string& settingTypeToStr( const SettingType& type );
 
-    //    enum class Type { BOOL, INT, FLOAT, STRING };
-    SettingParam( const std::string& name, eSettingLevel level, T defaultValue ) : _name(name), _level(level), _defaultVal(defaultValue), _val(defaultValue) {}
+template<typename T>
+class SettingParam {
+public:
+
+    // All other templates
+    template<typename T>
+    SettingParam( const std::string& name, eSettingLevel level, T defaultValue ) : _name(name), _level(level), _type(SettingType::UNDEFINED), _defaultVal(defaultValue), _val(defaultValue) {}
+
+    // Specializations
+    template<> SettingParam( const std::string& name, eSettingLevel level, bool defaultValue ) : _name(name), _level(level), _type(SettingType::BOOL), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "bool ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, float defaultValue ) : _name(name), _level(level), _type(SettingType::FLOAT), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "float ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, const char* defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "const char* ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::int32_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT32), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "int32_t ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::int64_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT64), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "int64_t ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::string defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "std::string ctor: " << name << std::endl; }
 
     const std::string&  getName( void ) const { return _name; }
+    const SettingType&  getType( void ) const { return _type; }
+    const std::string&  getTypeAsStr( void ) const { return settingTypeToStr(_type); }
+
     T   getVal( void ) const { return _val; }
 
 private:
     // Once set can not be changed
     const std::string   _name;
     eSettingLevel   _level;
-    T       _defaultVal;
-    T       _val;
+    SettingType     _type;
+    T               _defaultVal;
+    T               _val;
 };
 
 // Singleton that is container for SettingParam's
@@ -54,29 +75,34 @@ class Settings {
 public:
     static Settings&    get( void );
 
-    // Not implemented template - want it to fail
+    // Not implemented template - I want it to fail if type used is not covered here, compiler error is better then run time error :)
     template<typename T>
     void registerSetting( SettingParam<T>& param );
 
+    // For every supported type there is dedicated register
     template<> void registerSetting( SettingParam<bool>& param );
-    template<> void registerSetting( SettingParam<std::uint32_t>& param );
+    template<> void registerSetting( SettingParam<std::int32_t>& param );
+    template<> void registerSetting( SettingParam<std::int64_t>& param );
     template<> void registerSetting( SettingParam<float>& param );
     template<> void registerSetting( SettingParam<std::string>& param );
 
     struct SettingsStore {
         SettingsStore(SettingParam<bool>& val) : ptr(val) {}
-        SettingsStore(SettingParam<std::uint32_t>& val) : ptr(val) {}
+        SettingsStore(SettingParam<std::int32_t>& val) : ptr(val) {}
+        SettingsStore(SettingParam<std::int64_t>& val) : ptr(val) {}
         SettingsStore(SettingParam<float>& val) : ptr(val) {}
         SettingsStore(SettingParam<std::string>& val) : ptr(val) {}
 
         union Item {
             Item( SettingParam<bool>& ptr ) : spBool(&ptr) {} 
-            Item( SettingParam<std::uint32_t>& ptr ) : spUInt(&ptr) {} 
+            Item( SettingParam<std::int32_t>& ptr ) : spU32Int(&ptr) {} 
+            Item( SettingParam<std::int64_t>& ptr ) : spU64Int(&ptr) {} 
             Item( SettingParam<float>& ptr ) : spFloat(&ptr) {} 
             Item( SettingParam<std::string>& ptr ) : spString(&ptr) {} 
 
             SettingParam<bool>*             spBool;
-            SettingParam<std::uint32_t>*    spUInt;
+            SettingParam<std::int32_t>*     spU32Int;
+            SettingParam<std::int64_t>*     spU64Int;
             SettingParam<float>*            spFloat;
             SettingParam<std::string>*      spString;
             SettingParam<void*>*            spAll;      // Item is union so all types start at this same address, this one is just to represent all other

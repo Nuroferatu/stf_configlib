@@ -16,9 +16,43 @@
 
 namespace stf {
 
+const std::string& settingTypeToStr( const SettingType& type ) {
+    static const std::string    strUndefined{"UNDEFINED"};
+    static const std::string    strBool{"BOOL"};
+    static const std::string    strInt32{"INT32"};
+    static const std::string    strInt64{"INT64"};
+    static const std::string    strFloat{"FLOAT"};
+    static const std::string    strString{"STRING"};
+    static const std::string    strUnknown{"UNKNOWN"};
+
+    switch( type ) {
+        case SettingType::UNDEFINED:    return strUndefined;
+        case SettingType::BOOL:         return strBool;
+        case SettingType::INT32:        return strInt32; 
+        case SettingType::INT64:        return strInt64;
+        case SettingType::FLOAT:        return strFloat;
+        case SettingType::STRING:       return strString;
+    }
+    return strUnknown;
+}
+
+// All other templates
+
+// Specializations
+//template<> SettingParam::SettingParam( const std::string& name, eSettingLevel level, bool defaultValue ) : _name(name),
+//                _level(level), _type(Type::BOOL), _defaultVal(defaultValue), _val(defaultValue) {
+//    std::cout << "bool ctor: " << name << std::endl;
+//}
+
 Settings& Settings::get( void ) {
     static Settings     settings{};
     return settings;
+}
+
+template<typename T>
+void Settings::registerSetting( SettingParam<T>& param ) {
+    std::cout << "registerSetting( SettingParam<UNDEFINED>& param )" << std::endl;
+    _registry.emplace_back( param );
 }
 
 template<> void Settings::registerSetting( SettingParam<bool>& param ) {
@@ -26,8 +60,13 @@ template<> void Settings::registerSetting( SettingParam<bool>& param ) {
     _registry.emplace_back( param );
 }
 
-template<> void Settings::registerSetting( SettingParam<std::uint32_t>& param ) {
+template<> void Settings::registerSetting( SettingParam<std::int32_t>& param ) {
     std::cout << "registerSetting( SettingParam<std::int32_t>& param )" << std::endl;
+    _registry.emplace_back( param );
+}
+
+template<> void Settings::registerSetting( SettingParam<std::int64_t>& param ) {
+    std::cout << "registerSetting( SettingParam<std::int64_t>& param )" << std::endl;
     _registry.emplace_back( param );
 }
 

@@ -14,10 +14,12 @@
 #include <iostream>
 #include "configlib.h"
 
-static stf::SettingParam<bool>          sampleBoolParam{ "sampleBoolParam", stf::eSettingLevel::APP, false };
-static stf::SettingParam<std::uint32_t> sampleIntParam{ "sampleIntParam", stf::eSettingLevel::SYS, 100 };
-static stf::SettingParam<float>         sampleFloatParam{ "sampleFloatParam", stf::eSettingLevel::USER, 1.1234f };
-static stf::SettingParam<std::string>   sampleStringParam{ "sampleStringParam", stf::eSettingLevel::USER, "sampleDefaultValue" };
+static stf::SettingParam<bool>          sampleBoolParam   { "sampleBoolParam", stf::eSettingLevel::APP, false };
+static stf::SettingParam<std::int32_t>  sampleInt32Param  { "sampleIntParam32", stf::eSettingLevel::SYS, 100 };
+static stf::SettingParam<std::int64_t>  sampleInt64Param  { "sampleIntParam64", stf::eSettingLevel::SYS, 100 };
+static stf::SettingParam<float>         sampleFloatParam  { "sampleFloatParam", stf::eSettingLevel::USER, 1.1234f };
+static stf::SettingParam<std::string>   sampleStringParam { "sampleStringParam", stf::eSettingLevel::USER, "sampleDefaultValue" };
+static stf::SettingParam<std::string>   sampleStringParam2{ "sampleStringParam2", stf::eSettingLevel::USER, std::string("sampleDefaultValue") };
 
 int main( int argc, char* argv, char* env[] ) {
     // Planed usage
@@ -31,13 +33,15 @@ int main( int argc, char* argv, char* env[] ) {
     // int iVal = stf::Settings::Get().Find( "sampleIntParam" ).GetVal();
     // stf::Settings::Get().Find( "sampleStringParam" ).SetVal( "otherValue" );
     ref.registerSetting( sampleBoolParam );
-    ref.registerSetting( sampleIntParam );
+    ref.registerSetting( sampleInt32Param );
+    ref.registerSetting( sampleInt64Param );
     ref.registerSetting( sampleFloatParam );
     ref.registerSetting( sampleStringParam );
+    ref.registerSetting( sampleStringParam2 );
 
     // This works
     for( auto& item : ref._registry ) {
-        std::cout << item.ptr.spAll->getName() << std::endl;
+        std::cout << item.ptr.spAll->getName() << " TypeOf: " << item.ptr.spAll->getTypeAsStr() << std::endl;
     }
     return 0;
 }
