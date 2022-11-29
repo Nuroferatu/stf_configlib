@@ -39,21 +39,51 @@ enum class SettingType {
 
 const std::string& settingTypeToStr( const SettingType& type );
 
+class Settings;
+
+// This is bad... it will require specialization for every type... :(
+// And then everythig is duplicated in Settings for every type...
+// I do not like it
 template<typename T>
 class SettingParam {
 public:
-
     // All other templates
     template<typename T>
-    SettingParam( const std::string& name, eSettingLevel level, T defaultValue ) : _name(name), _level(level), _type(SettingType::UNDEFINED), _defaultVal(defaultValue), _val(defaultValue) {}
+    SettingParam( const std::string& name, eSettingLevel level, T defaultValue ) : _name(name), _level(level), _type(SettingType::UNDEFINED), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "undefined ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
 
     // Specializations
-    template<> SettingParam( const std::string& name, eSettingLevel level, bool defaultValue ) : _name(name), _level(level), _type(SettingType::BOOL), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "bool ctor: " << name << std::endl; }
-    template<> SettingParam( const std::string& name, eSettingLevel level, float defaultValue ) : _name(name), _level(level), _type(SettingType::FLOAT), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "float ctor: " << name << std::endl; }
-    template<> SettingParam( const std::string& name, eSettingLevel level, const char* defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "const char* ctor: " << name << std::endl; }
-    template<> SettingParam( const std::string& name, eSettingLevel level, std::int32_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT32), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "int32_t ctor: " << name << std::endl; }
-    template<> SettingParam( const std::string& name, eSettingLevel level, std::int64_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT64), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "int64_t ctor: " << name << std::endl; }
-    template<> SettingParam( const std::string& name, eSettingLevel level, std::string defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) { std::cout << "std::string ctor: " << name << std::endl; }
+    template<> SettingParam( const std::string& name, eSettingLevel level, bool defaultValue ) : _name(name), _level(level), _type(SettingType::BOOL), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "bool ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
+
+    template<> SettingParam( const std::string& name, eSettingLevel level, float defaultValue ) : _name(name), _level(level), _type(SettingType::FLOAT), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "float ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
+
+    template<> SettingParam( const std::string& name, eSettingLevel level, const char* defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "const char* ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
+
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::int32_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT32), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "int32_t ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
+
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::int64_t defaultValue ) : _name(name), _level(level), _type(SettingType::INT64), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "int64_t ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
+
+    template<> SettingParam( const std::string& name, eSettingLevel level, std::string defaultValue ) : _name(name), _level(level), _type(SettingType::STRING), _defaultVal(defaultValue), _val(defaultValue) {
+        std::cout << "std::string ctor: " << name << std::endl;
+        Settings::get().registerSetting( *this );
+    }
 
     const std::string&  getName( void ) const { return _name; }
     const SettingType&  getType( void ) const { return _type; }

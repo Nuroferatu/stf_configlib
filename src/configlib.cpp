@@ -36,14 +36,6 @@ const std::string& settingTypeToStr( const SettingType& type ) {
     return strUnknown;
 }
 
-// All other templates
-
-// Specializations
-//template<> SettingParam::SettingParam( const std::string& name, eSettingLevel level, bool defaultValue ) : _name(name),
-//                _level(level), _type(Type::BOOL), _defaultVal(defaultValue), _val(defaultValue) {
-//    std::cout << "bool ctor: " << name << std::endl;
-//}
-
 Settings& Settings::get( void ) {
     static Settings     settings{};
     return settings;
