@@ -28,15 +28,17 @@ enum class eSettingLevel {
     USER        // User level can be modified by user and system configuration files - it's RW and might also be saved back to config file
 };
 
-enum class SettingType {
+enum class eSettingType {
     UNDEFINED,
     BOOL,
     INT32,
     INT64,
     FLOAT,
-    STRING
+    STRING,
+    USER        // Dedicated for user defined types
 };
 
+#if 0
 const std::string& settingTypeToStr( const SettingType& type );
 
 class Settings;
@@ -142,6 +144,7 @@ public:
     };
     std::vector<SettingsStore>  _registry;
 };
+#endif
 
 }; // ns:stf
 

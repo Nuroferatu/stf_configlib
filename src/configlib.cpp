@@ -14,6 +14,8 @@
 #include "configlib.h"
 #include <iostream>
 
+#if 0
+
 namespace stf {
 
 const std::string& settingTypeToStr( const SettingType& type ) {
@@ -73,5 +75,6 @@ template<> void Settings::registerSetting( SettingParam<std::string>& param ) {
 }
 
 }; // ns:stf
+#endif
 
 // vim: ts=4:sw=4:et:nowrap
