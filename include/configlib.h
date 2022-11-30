@@ -23,6 +23,7 @@ namespace stf {
 
 // Concept - Want something that will work a bit like console variables in games
 enum class eSettingLevel {
+    UNDEFINED,
     APP,        // Application level setting is defined in application and can not be modified by config file or by user when app is running - it's read only setting
     SYS,        // System level can be modyfied only by config file that cames from system directory - it's read only
     USER        // User level can be modified by user and system configuration files - it's RW and might also be saved back to config file
@@ -36,6 +37,19 @@ enum class eSettingType {
     FLOAT,
     STRING,
     USER        // Dedicated for user defined types
+};
+
+class SettingVarBase {
+public:
+    SettingVarBase( const std::string& name, const stf::eSettingLevel level, const stf::eSettingType type ) : _name(name), _level(level), _type(type) {}
+
+    const std::string&  getName( void ) const { return _name; }
+    const stf::eSettingLevel    getSettingsLevel( void ) const { return _level; }
+
+protected:
+    const std::string           _name;
+    const stf::eSettingLevel    _level;
+    const stf::eSettingType     _type;
 };
 
 #if 0
