@@ -17,82 +17,44 @@
 #include <vector>
 #include <list>
 
-// Expectations
+// Sample user data type that can be stored as setting
 struct UserType {
-    UserType( int i ) : x(i) {}
+    static constexpr std::uint32_t SETTINGS_USER_ID = stf::eSettingUserID<0>::val;
+    UserType( int i, int j, int k ) : x(i), y(j), z(k) {}
     ~UserType() = default;
 
     int x;
+    int y;
+    int z;
 };
 
-struct SettingVarBool : public stf::SettingVarBase {
-    SettingVarBool( const std::string& name, const stf::eSettingLevel level, bool defaultVal ) : SettingVarBase(name, level, stf::eSettingType::BOOL), _defaultVal(defaultVal), _val(_defaultVal) {}
-
-    bool    getVal( void ) const { return _val; }
-
-protected:
-    bool    _defaultVal;
-    bool    _val;
-};
-
-struct SettingVarFloat : public stf::SettingVarBase {
-    SettingVarFloat( const std::string& name, const stf::eSettingLevel level, float defaultVal ) : SettingVarBase(name, level,stf::eSettingType::FLOAT), _defaultVal(defaultVal), _val(_defaultVal) {}
-
-    float   getVal( void ) const { return _val; }
-
-protected:
-    float   _defaultVal;
-    float   _val;
-};
-
-struct SettingVarUserType : public stf::SettingVarBase {
-    SettingVarUserType( const std::string& name, const stf::eSettingLevel level, UserType&& defaultVal ) : SettingVarBase(name, level,stf::eSettingType::USER), _defaultVal(defaultVal), _val(_defaultVal) {}
-
-    UserType    getVal( void ) const { return _val; }
-
-protected:
-    UserType    _defaultVal;
-    UserType    _val;
-};
-
-template<class T>
-class SettingParam : public stf::SettingVarBase {
-public:
-    SettingParam( const std::string& name, const stf::eSettingLevel level, T defaultVal );
-
-    T   getVal( void ) const { return _val; }
-
-protected:
-    T   _defaultVal;
-    T   _val;
-};
-
-template<class T> SettingParam<T>::SettingParam( const std::string& name, const stf::eSettingLevel level, T defaultVal ) : SettingVarBase(name, level, stf::eSettingType::USER), _defaultVal(defaultVal), _val(_defaultVal) {}
-template<> SettingParam<bool>::SettingParam( const std::string& name, const stf::eSettingLevel level, bool defaultVal ) : SettingVarBase(name, level, stf::eSettingType::BOOL), _defaultVal(defaultVal), _val(_defaultVal) {}
-template<> SettingParam<float>::SettingParam( const std::string& name, const stf::eSettingLevel level, float defaultVal ) : SettingVarBase(name, level, stf::eSettingType::BOOL), _defaultVal(defaultVal), _val(_defaultVal) {}
-template<> SettingParam<std::int32_t>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::int32_t defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT32), _defaultVal(defaultVal), _val(_defaultVal) {}
-template<> SettingParam<std::int64_t>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::int64_t defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT64), _defaultVal(defaultVal), _val(_defaultVal) {}
-template<> SettingParam<std::string>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::string defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT64), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> stf::SettingParam<UserType>::SettingParam( const std::string& name, const stf::eSettingLevel level, UserType defaultVal ) :
+    SettingVarBase(name, level, UserType::SETTINGS_USER_ID),
+    _defaultVal(defaultVal),
+    _val(_defaultVal) {}
 
 int main( int argc, char* argv, char* env[] ) {
-    static SettingParam<UserType>       sampleUserTypeParam      { "SettingParam<UserType>", stf::eSettingLevel::APP, UserType(1234) };
-    static SettingParam<bool>           sampleBoolParam          { "SettingParam<bool>", stf::eSettingLevel::SYS, false };
-    static SettingParam<float>          sampleFloatParam         { "SettingParam<float>", stf::eSettingLevel::USER, 1.2345f };
-    static SettingParam<std::int32_t>   sampleInt32SmallNumParam { "SettingParam<std::int32_t>", stf::eSettingLevel::USER, 100 };
-    static SettingParam<std::int64_t>   sampleInt64SmallNumParam { "SettingParam<std::int64_t>", stf::eSettingLevel::USER, 101 };
-    static SettingParam<std::int32_t>   sampleInt32SMaxNumParam  { "SettingParam<std::int32_t>", stf::eSettingLevel::USER, INT32_MAX };
-    static SettingParam<std::int64_t>   sampleInt64SMaxlNumParam { "SettingParam<std::int64_t>", stf::eSettingLevel::USER, INT64_MAX };
-    static SettingParam<std::string>    sampleStringParam        { "SettingParam<std::string>", stf::eSettingLevel::USER, "SampleValue"};
+    static stf::SettingParam<UserType>       sampleUserTypeParam      { "SettingParam<UserType>",   stf::eSettingLevel::APP,  UserType(0,1,2) };
+    static stf::SettingParam<bool>           sampleBoolParam          { "SettingParam<bool>",       stf::eSettingLevel::SYS,  false };
+    static stf::SettingParam<float>          sampleFloatParam         { "SettingParam<float>",      stf::eSettingLevel::USER, 1.2345f };
+    static stf::SettingParam<std::int32_t>   sampleInt32SmallNumParam { "SettingParam<int32_t>",    stf::eSettingLevel::USER, 100 };
+    static stf::SettingParam<std::int64_t>   sampleInt64SmallNumParam { "SettingParam<int64_t>",    stf::eSettingLevel::USER, 101 };
+    static stf::SettingParam<std::int32_t>   sampleInt32SMaxNumParam  { "SettingParam<int32_t>",    stf::eSettingLevel::USER, INT32_MAX };
+    static stf::SettingParam<std::int64_t>   sampleInt64SMaxlNumParam { "SettingParam<int64_t>",    stf::eSettingLevel::USER, INT64_MAX };
+    static stf::SettingParam<std::string>    sampleStringParam        { "SettingParam<string>",     stf::eSettingLevel::USER, "SampleValue" };
 
     //// Planed usage
     //// 1. Direct in place of declatarion
     //bool bVal = sampleBoolParam.getVal();
     //std::cout << std::endl << bVal << std::endl;
     //std::cout << sampleStringParam2.getVal() << std::endl << std::endl;
+    static stf::Settings& ref = stf::Settings::get();
+    for( auto val : ref.getRegistry() ) {
+        std::cout << "Registry [" << val->getName() << "] " << "Level [" << val->getSettingsLevelAsStr() << "] Type [" << val->getTypeAsStr() << "]" << std::endl;
+    }
 
-    //static stf::Settings& ref = stf::Settings::get();
 
-    ////// 2. Indirect using Settings find
+    ////// 2. Indirect using Settings
     ////// int iVal = stf::Settings::Get().Find( "sampleIntParam" ).GetVal();
     ////// stf::Settings::Get().Find( "sampleStringParam" ).SetVal( "otherValue" );
     ////ref.registerSetting( sampleBoolParam );

@@ -13,12 +13,11 @@
 // '-------------------------------------------------------------------------'
 #include "configlib.h"
 #include <iostream>
-
-#if 0
+#include <sstream>
 
 namespace stf {
 
-const std::string& settingTypeToStr( const SettingType& type ) {
+const std::string& settingTypeToStr( const eSettingType& type, std::uint32_t userType ) {
     static const std::string    strUndefined{"UNDEFINED"};
     static const std::string    strBool{"BOOL"};
     static const std::string    strInt32{"INT32"};
@@ -26,55 +25,67 @@ const std::string& settingTypeToStr( const SettingType& type ) {
     static const std::string    strFloat{"FLOAT"};
     static const std::string    strString{"STRING"};
     static const std::string    strUnknown{"UNKNOWN"};
+    static std::string          strUser;    // This is not thread safe :) 
 
     switch( type ) {
-        case SettingType::UNDEFINED:    return strUndefined;
-        case SettingType::BOOL:         return strBool;
-        case SettingType::INT32:        return strInt32; 
-        case SettingType::INT64:        return strInt64;
-        case SettingType::FLOAT:        return strFloat;
-        case SettingType::STRING:       return strString;
+        case eSettingType::UNDEFINED:    return strUndefined;
+        case eSettingType::BOOL:         return strBool;
+        case eSettingType::INT32:        return strInt32; 
+        case eSettingType::INT64:        return strInt64;
+        case eSettingType::FLOAT:        return strFloat;
+        case eSettingType::STRING:       return strString;
+        case eSettingType::USER:
+        {
+            std::stringstream   ss;
+            ss << "USER_" << userType;
+            strUser = ss.str();
+            return strUser;
+        }
     }
     return strUnknown;
 }
 
+const std::string& settingLevelToStr( const eSettingLevel& type ) {
+    static const std::string    strUndefined{"UNDEFINED"};
+    static const std::string    strApp{"APP"};
+    static const std::string    strSys{"SYS"};
+    static const std::string    strUser{"USER"};
+
+    switch( type ) {
+        case eSettingLevel::APP:   return strApp;
+        case eSettingLevel::SYS:   return strSys;
+        case eSettingLevel::USER:  return strUser;
+    }
+    return strUndefined;
+}
+
 Settings& Settings::get( void ) {
-    static Settings     settings{};
+    static Settings settings{};
     return settings;
 }
 
-template<typename T>
-void Settings::registerSetting( SettingParam<T>& param ) {
-    std::cout << "registerSetting( SettingParam<UNDEFINED>& param )" << std::endl;
-    _registry.emplace_back( param );
+void Settings::registerSetting( stf::SettingVarBase* param ) {
+    _registry.push_back( param );
 }
 
-template<> void Settings::registerSetting( SettingParam<bool>& param ) {
-    std::cout << "registerSetting( SettingParam<bool>& param )" << std::endl;
-    _registry.emplace_back( param );
+SettingVarBase::SettingVarBase( const std::string& name, const stf::eSettingLevel level, const stf::eSettingType type )
+    : _name(name), _level(level), _type(type), _userType(UNDEFINED_USER_TYPE) {
+    Settings::get().registerSetting( this );
 }
 
-template<> void Settings::registerSetting( SettingParam<std::int32_t>& param ) {
-    std::cout << "registerSetting( SettingParam<std::int32_t>& param )" << std::endl;
-    _registry.emplace_back( param );
+SettingVarBase::SettingVarBase( const std::string& name, const stf::eSettingLevel level, const std::int32_t type )
+    : _name(name), _level(level), _type(stf::eSettingType::USER), _userType(type) {
+    Settings::get().registerSetting( this );
 }
 
-template<> void Settings::registerSetting( SettingParam<std::int64_t>& param ) {
-    std::cout << "registerSetting( SettingParam<std::int64_t>& param )" << std::endl;
-    _registry.emplace_back( param );
-}
+template<class T> SettingParam<T>::SettingParam( const std::string& name, const stf::eSettingLevel level, T defaultVal ) : SettingVarBase(name, level, stf::eSettingType::UNKNOWN), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> SettingParam<bool>::SettingParam( const std::string& name, const stf::eSettingLevel level, bool defaultVal ) : SettingVarBase(name, level, stf::eSettingType::BOOL), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> SettingParam<float>::SettingParam( const std::string& name, const stf::eSettingLevel level, float defaultVal ) : SettingVarBase(name, level, stf::eSettingType::BOOL), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> SettingParam<std::int32_t>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::int32_t defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT32), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> SettingParam<std::int64_t>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::int64_t defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT64), _defaultVal(defaultVal), _val(_defaultVal) {}
+template<> SettingParam<std::string>::SettingParam( const std::string& name, const stf::eSettingLevel level, std::string defaultVal ) : SettingVarBase(name, level, stf::eSettingType::INT64), _defaultVal(defaultVal), _val(_defaultVal) {}
 
-template<> void Settings::registerSetting( SettingParam<float>& param ) {
-    std::cout << "registerSetting( SettingParam<float>& param )" << std::endl;
-    _registry.emplace_back( param );
-}
-
-template<> void Settings::registerSetting( SettingParam<std::string>& param ) {
-    std::cout << "registerSetting( SettingParam<std::string>& param )" << std::endl;
-    _registry.emplace_back( param );
-}
 
 }; // ns:stf
-#endif
 
 // vim: ts=4:sw=4:et:nowrap
