@@ -73,7 +73,7 @@ SettingVarBase::SettingVarBase( const std::string& name, const stf::eSettingLeve
     Settings::get().registerSetting( this );
 }
 
-SettingVarBase::SettingVarBase( const std::string& name, const stf::eSettingLevel level, const std::int32_t type )
+SettingVarBase::SettingVarBase( const std::string& name, const stf::eSettingLevel level, const std::uint32_t type )
     : _name(name), _level(level), _type(stf::eSettingType::USER), _userType(type) {
     Settings::get().registerSetting( this );
 }

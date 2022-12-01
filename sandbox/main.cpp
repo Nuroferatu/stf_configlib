@@ -11,9 +11,9 @@
 // | Copyright (C)2022 SoftwareToolsFactory                                  |
 // |                   http://softwaretoolsfactory.com                       |
 // '-------------------------------------------------------------------------'
-#include <iostream>
 #include "configlib.h"
 
+#include <iostream>
 #include <vector>
 #include <list>
 

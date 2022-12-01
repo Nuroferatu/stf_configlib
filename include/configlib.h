@@ -15,36 +15,12 @@
 #ifndef __STF_CONFIGLIB_H__
 #define __STF_CONFIGLIB_H__
 
+#include "settings_types.h"
+
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace stf {
-
-// Concept - Want something that will work a bit like console variables in games
-enum class eSettingLevel {
-    UNDEFINED,
-    APP,        // Application level setting is defined in application and can not be modified by config file or by user when app is running - it's read only setting,to be modified by app it self if needed
-    SYS,        // System level can be modyfied only by config file that cames from system directory - it's read only
-    USER        // User level can be modified by user and system configuration files - it's RW and might also be saved back to config file
-};
-
-enum class eSettingType : std::uint32_t {
-    UNDEFINED,
-    BOOL,
-    INT32,
-    INT64,
-    FLOAT,
-    STRING,
-    USER = 1000,    // Dedicated for user defined types
-    UNKNOWN
-};
-
-// Helper struct
-template<int userTypeId>
-struct eSettingUserID {
-    static constexpr std::uint32_t val = static_cast<std::uint32_t>(eSettingType::USER)+userTypeId;
-};
 
 const std::string& settingTypeToStr( const eSettingType& type, std::uint32_t userType );
 const std::string& settingLevelToStr( const eSettingLevel& level );
@@ -52,7 +28,7 @@ const std::string& settingLevelToStr( const eSettingLevel& level );
 class SettingVarBase {
 public:
     SettingVarBase( const std::string& name, const stf::eSettingLevel level, const stf::eSettingType type );
-    SettingVarBase( const std::string& name, const stf::eSettingLevel level, const std::int32_t type );
+    SettingVarBase( const std::string& name, const stf::eSettingLevel level, const std::uint32_t type );
 
     const std::string&          getName( void ) const { return _name; }
     const stf::eSettingLevel    getSettingsLevel( void ) const { return _level; }

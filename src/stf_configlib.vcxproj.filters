@@ -21,6 +21,9 @@
     <ClInclude Include="..\include\configlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\settings_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="configlib.cpp">
